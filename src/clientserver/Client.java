@@ -1,5 +1,9 @@
 package clientserver;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
@@ -19,18 +23,22 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 public class Client extends Application {
-    // Text area for displaying contents
-    private TextArea textArea = new TextArea();
+    
+    // Name of server to connect to
+    private static final String SERVERNAME = "localhost";
     // Port used for socket connections
-    private final int PORT = 8000;
-    private final Insets DEFAULT_INSETS = new Insets(15, 12, 15, 12);    
-    private final Insets DEFAULT_TOP_INSETS = new Insets(15, 0, 0, 0);
-    private final Insets DEFAULT_SIDE_INSETS = new Insets(0, 12, 0, 12);
-    private final Insets DEFAULT_BOTTOM_INSETS = new Insets(0, 0, 15, 0);
-    private final Insets DEFAULT_TOP_AND_BOTTOM_INSETS = new Insets(15, 0, 15, 0);
+    private static final int PORT = 8000;
+    // Text area for displaying contents
+    private static TextArea outputTextArea = new TextArea();
+    // IO Streams
+    private static DataOutputStream toServer;
+    private static DataInputStream fromServer;
+    
+    private final Insets DEFAULT_INSETS = new Insets(7.5, 6, 7.5, 6);
   
     @Override                                                                   // Override the start method in the Application class
     public void start(Stage primaryStage) {
@@ -41,6 +49,11 @@ public class Client extends Application {
         
         HBox hBox = new HBox();
         VBox vBox = new VBox();
+        
+        hBox.setStyle("-fx-background-color: red");
+        vBox.setStyle("-fx-background-color: blue");
+        gridPane.setStyle("-fx-background-color: orange");
+        borderPane.setStyle("-fx-background-color: purple");
         
         Button submitBtn = new Button("Submit");
         
@@ -56,6 +69,7 @@ public class Client extends Application {
         gridPane.setPadding(DEFAULT_INSETS);        
         
         vBox.setMinHeight(Region.USE_PREF_SIZE);
+        vBox.setMinWidth(Region.USE_PREF_SIZE);
         vBox.setPadding(DEFAULT_INSETS);                            // Define space formatting for vertical box
         vBox.setAlignment(Pos.CENTER);
         
@@ -63,24 +77,24 @@ public class Client extends Application {
         hBox.setPadding(DEFAULT_INSETS);
         hBox.setAlignment(Pos.TOP_LEFT);        
         
-        submitBtn.setMaxWidth(Double.MAX_VALUE);
-        submitBtn.setMinWidth(vBox.getPrefWidth());
-        submitBtn.setPadding(DEFAULT_INSETS);                            // Define space formatting for vertical box        
+        submitBtn.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        submitBtn.setMinSize(Double.MIN_VALUE, Double.MIN_VALUE);
         
         interestLbl.setMinWidth(Region.USE_PREF_SIZE);
-        interestLbl.setPadding(DEFAULT_SIDE_INSETS);
-        
-        interestTxtF.setMinWidth(Region.USE_PREF_SIZE);
+        interestLbl.setPadding(DEFAULT_INSETS);
         
         periodLbl.setMinWidth(Region.USE_PREF_SIZE);
-        periodLbl.setPadding(DEFAULT_SIDE_INSETS);
-        
-        periodTxtF.setMinWidth(Region.USE_PREF_SIZE);
+        periodLbl.setPadding(DEFAULT_INSETS);
         
         amountLbl.setMinWidth(Region.USE_PREF_SIZE);
-        amountLbl.setPadding(DEFAULT_SIDE_INSETS);
+        amountLbl.setPadding(DEFAULT_INSETS);
         
+        interestTxtF.setMinWidth(Region.USE_PREF_SIZE);
+        interestTxtF.setAlignment(Pos.CENTER_RIGHT);
+        periodTxtF.setMinWidth(Region.USE_PREF_SIZE);
+        periodTxtF.setAlignment(Pos.CENTER_RIGHT);
         amountTxtF.setMinWidth(Region.USE_PREF_SIZE);
+        amountTxtF.setAlignment(Pos.CENTER_RIGHT);
         
         GridPane.setConstraints(interestLbl, 0, 0);
         GridPane.setConstraints(interestTxtF, 1, 0);
@@ -100,17 +114,51 @@ public class Client extends Application {
         
         vBox.getChildren().add(submitBtn);
         
-        hBox.getChildren().add(textArea);
+        //outputTextArea
+        //        .setAlignment(Pos.CENTER_RIGHT);
+        hBox.getChildren().add(outputTextArea);
         
         borderPane.setCenter(gridPane);
         borderPane.setRight(vBox);
         borderPane.setBottom(hBox);
         
-        Scene scene = new Scene(borderPane, 500, 350);                          // Create a scene containing a border pane with specified dimensions
+        Scene scene = new Scene(borderPane, 450, 400);                          // Create a scene containing a border pane with specified dimensions
+        
+        primaryStage.setOnCloseRequest((WindowEvent t) -> {
+            System.out.println("CLOSING");
+        });
         
         primaryStage.setTitle("Client");                                // Set the stage title
         primaryStage.setScene(scene);                                           // Place the scene in the stage
         primaryStage.show();                                                    // Display the stage
+    }
+    
+    public static void connectToServer() {
+    
+        try {
+            // Create a socket to connect to the server
+            Socket socket = new Socket(SERVERNAME, PORT);
+            // Socket socket = new Socket("130.254.204.36", 8000);
+            // Socket socket = new Socket("drake.Armstrong.edu", 8000);
+
+            // Create an input stream to receive data from the server
+            fromServer = new DataInputStream(
+              socket.getInputStream());
+
+            // Create an output stream to send data to the server
+            toServer =
+              new DataOutputStream(socket.getOutputStream());
+          }
+          catch (IOException ex) {
+            outputTextArea.appendText(ex.toString() + '\n');
+          }
+    }
+    
+    public static void main (String[] args) {
+    
+        connectToServer();
+        launch(args);
+    
     }
 
 //// Text field for receiving radius
