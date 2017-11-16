@@ -68,68 +68,63 @@ public class Client extends Application {
     @Override                                                                   // Override the start method in the Application class
     public void start(Stage primaryStage) {
 
-        primaryStage.setOnCloseRequest((WindowEvent we) -> {
+        primaryStage.setOnCloseRequest((WindowEvent we) -> {                    // Exit the program closing all ports and stopping all threads
             System.out.println("Stage is closing");
             System.exit(0);
         });
 
-        BorderPane borderPane = new BorderPane();
+        BorderPane borderPane = new BorderPane();                               // Create BorderPane layout element
 
-        GridPane gridPane = new GridPane();
+        GridPane gridPane = new GridPane();                                     // Create GridPane layout element
 
-        HBox hBox = new HBox();
-        VBox vBox = new VBox();
+        HBox hBox = new HBox();                                                 // Create HBox layout elements
+        VBox vBox = new VBox();                                                 // Create VBox layout elements
 
-        hBox.setStyle("-fx-background-color: red");
-        vBox.setStyle("-fx-background-color: blue");
-        gridPane.setStyle("-fx-background-color: orange");
-        borderPane.setStyle("-fx-background-color: purple");
+        Button submitBtn = new Button("Submit");                                // Create submit button
 
-        Button submitBtn = new Button("Submit");
+        Label interestLbl = new Label("Annual Interest Rate");                  // Create label for interest
+        Label periodLbl = new Label("Number Of Years");                         // Create label for period of loan
+        Label amountLbl = new Label("Loan Amount");                             // Create label for loan amount
 
-        Label interestLbl = new Label("Annual Interest Rate");
-        Label periodLbl = new Label("Number Of Years");
-        Label amountLbl = new Label("Loan Amount");
+        GridPane.setHalignment(interestLbl, HPos.LEFT);                         // Set GridPane alignment
+        gridPane.setPadding(DEFAULT_INSETS);                                    // Set GridPane padding
 
-        GridPane.setHalignment(interestLbl, HPos.LEFT);
-        gridPane.setPadding(DEFAULT_INSETS);
+        vBox.setMinHeight(Region.USE_PREF_SIZE);                                // Set vBox min height
+        vBox.setMinWidth(Region.USE_PREF_SIZE);                                 // Set vBox max height
+        vBox.setPadding(DEFAULT_INSETS);                                        // Define space formatting for vertical box
+        vBox.setAlignment(Pos.CENTER);                                          // Set vBox alignment
 
-        vBox.setMinHeight(Region.USE_PREF_SIZE);
-        vBox.setMinWidth(Region.USE_PREF_SIZE);
-        vBox.setPadding(DEFAULT_INSETS);                            // Define space formatting for vertical box
-        vBox.setAlignment(Pos.CENTER);
+        hBox.setMinHeight(Region.USE_PREF_SIZE);                                // Set hBox min height
+        hBox.setPadding(DEFAULT_INSETS);                                        // Set hBox padding
+        hBox.setAlignment(Pos.TOP_LEFT);                                        // Set hBox alignment
 
-        hBox.setMinHeight(Region.USE_PREF_SIZE);
-        hBox.setPadding(DEFAULT_INSETS);
-        hBox.setAlignment(Pos.TOP_LEFT);
+        submitBtn.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);               // Set button max size
+        submitBtn.setMinSize(Double.MIN_VALUE, Double.MIN_VALUE);               // Set button min size
 
-        submitBtn.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        submitBtn.setMinSize(Double.MIN_VALUE, Double.MIN_VALUE);
+        interestLbl.setMinWidth(Region.USE_PREF_SIZE);                          // Set interest label preferred size
+        interestLbl.setPadding(DEFAULT_INSETS);                                 // Set interest label padding
 
-        interestLbl.setMinWidth(Region.USE_PREF_SIZE);
-        interestLbl.setPadding(DEFAULT_INSETS);
+        periodLbl.setMinWidth(Region.USE_PREF_SIZE);                            // Set loan period label min width
+        periodLbl.setPadding(DEFAULT_INSETS);                                   // Set loan period label padding
 
-        periodLbl.setMinWidth(Region.USE_PREF_SIZE);
-        periodLbl.setPadding(DEFAULT_INSETS);
+        amountLbl.setMinWidth(Region.USE_PREF_SIZE);                            // Set loan amount label min width
+        amountLbl.setPadding(DEFAULT_INSETS);                                   // Set loan amount label padding
 
-        amountLbl.setMinWidth(Region.USE_PREF_SIZE);
-        amountLbl.setPadding(DEFAULT_INSETS);
-
-        interestTxtF.setMinWidth(Region.USE_PREF_SIZE);
+        interestTxtF.setMinWidth(Region.USE_PREF_SIZE);                         // Set textfield sizes and alignments
         interestTxtF.setAlignment(Pos.CENTER_RIGHT);
         periodTxtF.setMinWidth(Region.USE_PREF_SIZE);
         periodTxtF.setAlignment(Pos.CENTER_RIGHT);
         amountTxtF.setMinWidth(Region.USE_PREF_SIZE);
         amountTxtF.setAlignment(Pos.CENTER_RIGHT);
 
-        GridPane.setConstraints(interestLbl, 0, 0);
+        GridPane.setConstraints(interestLbl, 0, 0);                             // Define label and textfield locations in gridpane
         GridPane.setConstraints(interestTxtF, 1, 0);
         GridPane.setConstraints(periodLbl, 0, 1);
         GridPane.setConstraints(periodTxtF, 1, 1);
         GridPane.setConstraints(amountLbl, 0, 2);
         GridPane.setConstraints(amountTxtF, 1, 2);
 
-        gridPane.getChildren().addAll(
+        gridPane.getChildren().addAll(                                          // Place labels and textfields in gridpane
                 interestLbl,
                 interestTxtF,
                 periodLbl,
@@ -138,17 +133,17 @@ public class Client extends Application {
                 amountTxtF
         );
 
-        vBox.getChildren().add(submitBtn);
+        vBox.getChildren().add(submitBtn);                                      // Place submit button in vBox
 
-        hBox.getChildren().add(new ScrollPane(outputTextArea));
+        hBox.getChildren().add(new ScrollPane(outputTextArea));                 // Place scrollpane in hBox
 
-        borderPane.setCenter(gridPane);
-        borderPane.setRight(vBox);
-        borderPane.setBottom(hBox);
+        borderPane.setCenter(gridPane);                                         // Place gridpane in borderpane
+        borderPane.setRight(vBox);                                              // Place vBox in borderpane
+        borderPane.setBottom(hBox);                                             // place hBox in borderpane
 
-        outputTextArea.appendText("Project 7 - Client/Server Technology\n");
+        outputTextArea.appendText("Project 7 - Client/Server Technology\n");    // Append the title to the output area
 
-        try {
+        try {                                                                   // Try to create a new socket
             socket = new Socket("localhost", 8000);
         } catch (IOException ex) {
             outputTextArea.appendText(ex.toString() + '\n');
@@ -159,7 +154,7 @@ public class Client extends Application {
 
         Scene scene = new Scene(borderPane, 450, 400);                          // Create a scene containing a border pane with specified dimensions
 
-        primaryStage.setTitle("Client");                                // Set the stage title
+        primaryStage.setTitle("Client");                                        // Set the stage title
         primaryStage.setScene(scene);                                           // Place the scene in the stage
         primaryStage.show();                                                    // Display the stage
 
@@ -175,53 +170,66 @@ public class Client extends Application {
 
         try {
 
-            // Create primitive data type input and output streams
-            primFromServer = new DataInputStream(socket.getInputStream());
+            primFromServer = new DataInputStream(socket.getInputStream());      // Create primitive data type input and output streams
             primToServer = new DataOutputStream(socket.getOutputStream());
+            
+            objToServer = new ObjectOutputStream(socket.getOutputStream());     // Create object type input and output streams
 
-            // Create object type input and output streams
-            objToServer = new ObjectOutputStream(socket.getOutputStream());
-
-            String interestRate = interestTxtF.getText().trim();
+            String interestRate = interestTxtF.getText().trim();                // Get and format input strings for transmission
             String period = periodTxtF.getText().trim();
             String amount = amountTxtF.getText().trim();
 
-            String toServerObj = interestRate + ":" + period + ":" + amount;
+            String toServerObj = interestRate + ":" + period + ":" + amount;    // Compile transmission string
 
             if (!interestRate.isEmpty() && !period.isEmpty() && !amount.isEmpty()) {
                 try {
-                    objToServer.writeObject(toServerObj);
-                    objToServer.flush();
+                    objToServer.writeObject(toServerObj);                       // Transmit transmission string to client
+                    objToServer.flush();                                        // Flush stream
 
-                    objFromServer = new ObjectInputStream(socket.getInputStream());
+                    objFromServer = new ObjectInputStream(socket.getInputStream()); // Define new read object for data from server
 
                     Object object = null;
 
                     try {
-                        object = objFromServer.readObject();
+                        object = objFromServer.readObject();                    // Get input from server
                     } catch (ClassNotFoundException ex) {
                         Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
                     }
 
-                    String[] fromServerObj = object.toString().split(":");
+                    String[] fromServerObj = object.toString().split(":");      // Split transmission string into array
 
-                    outputTextArea.appendText(String.format("\nAnnual Interest Rate: %.2f\n", Double.parseDouble(interestRate)));
-                    outputTextArea.appendText(String.format("Number of Years: %d\n", Integer.parseInt(period)));
-                    outputTextArea.appendText(String.format("Loan Amount: %.2f\n", Double.parseDouble(amount)));
-                    outputTextArea.appendText(String.format("monthlyPayment: %.2f\n", Double.parseDouble(fromServerObj[0]))); 	// Get the monthly payment from the object, format it to look good and display it in the textbox
-                    outputTextArea.appendText(String.format("totalPayment: %.2f\n", Double.parseDouble(fromServerObj[1])));
+                    outputTextArea.appendText(
+                            String.format("\nAnnual Interest Rate: %.2f\n", 
+                                          Double.parseDouble(interestRate))
+                    );                                                          // Get and format annual interest rate from object
+                    outputTextArea.appendText(
+                            String.format("Number of Years: %d\n", 
+                                          Integer.parseInt(period))
+                    );                                                          // Get and format monthly payment from object
+                    outputTextArea.appendText(
+                            String.format("Loan Amount: %.2f\n", 
+                                          Double.parseDouble(amount))
+                    );                                                          // Get and format loan amount from object
+                    outputTextArea.appendText(
+                            String.format("monthlyPayment: %.2f\n", 
+                                          Double.parseDouble(fromServerObj[0]))
+                    );                                                          // Get and format monthly paymnet from object
+                    outputTextArea.appendText(
+                            String.format("totalPayment: %.2f\n", 
+                                          Double.parseDouble(fromServerObj[1]))
+                    );                                                          // Get and format total payment from object
 
                 } catch (IOException ex) {
                     outputTextArea.appendText(ex.toString() + '\n');
                     Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
-            } else {
+            } else {                                                            // Inform the user they didn't provide the correct input
 
                 outputTextArea.appendText("\n!!! Please enter all the required values before pressing submit !!!\n");
 
             }
-        } catch (IOException ex) {
+        } catch (IOException ex) {                                              // Catch IO Exceptions
             outputTextArea.appendText(ex.toString() + '\n');
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -237,7 +245,7 @@ public class Client extends Application {
 
     public static void main(String[] args) throws IOException {
 
-        launch(args);
+        launch(args);                                                           // Launch program
 
     }
 }
