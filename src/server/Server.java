@@ -9,6 +9,7 @@ package server;
  * Date              : November 16
  * Filename          : Server.java
  */
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -47,20 +48,20 @@ import static javafx.application.Application.launch;
 
 public class Server extends Application {
 
-    private final TextArea outputTextArea = new TextArea();
-    // Number a client
-    private int clientNo = 0;
+    
+    private final TextArea outputTextArea = new TextArea();                     // Output area definition
+    private int clientNo = 0;                                                   // Used to assign a number to a client
 
     /**
      * Creates the primary stage display object
      * 
      * @param primaryStage JavaFX Stage
      */
-    
+
     @Override                                                                   // Override the start method in the Application class
     public void start(Stage primaryStage) {
 
-        primaryStage.setOnCloseRequest((WindowEvent we) -> {
+        primaryStage.setOnCloseRequest((WindowEvent we) -> {                    // Exit the program closing all ports and stopping all threads
             System.out.println("Stage is closing");
             System.exit(0);
         });
@@ -75,36 +76,39 @@ public class Server extends Application {
 
         new Thread(() -> {
             try {
+                
+                ServerSocket serverSocket = new ServerSocket(8000);             // Create a socket to connect to the server
 
-                                                                                // Create a socket to connect to the server
-                ServerSocket serverSocket = new ServerSocket(8000);
-
-                                                                                //ServerSocket serverSocket = new ServerSocket(PORT);
-                outputTextArea.appendText("MultiThreadServer started at " + new Date() + '\n');
-
+                outputTextArea.appendText("MultiThreadServer started at " 
+                                          + new Date() + '\n');                 //ServerSocket serverSocket = new ServerSocket(PORT);
+                
                 while (true) {
 
-                                                                                // Listen for a connection request
-                    Socket socket = serverSocket.accept();
+                    Socket socket = serverSocket.accept();                      // Listen for a connection request
 
-                                                                                // Increment clientNo
-                    clientNo++;
-
+                    clientNo++;                                                 // Increment clientNo
+                    
                     Platform.runLater(() -> {
-                                                                                // Display the client number
-                        outputTextArea.appendText("\nStarting thread for client " + clientNo + " at " + new Date() + '\n');
 
-                                                                                // Find the client's host name, and IP address
-                        InetAddress inetAddress = socket.getInetAddress();
-                        outputTextArea.appendText("Client " + clientNo + "'s host name is " + inetAddress.getHostName() + "\n");
-                        outputTextArea.appendText("Client " + clientNo + "'s IP Address is " + inetAddress.getHostAddress() + "\n");
+                        outputTextArea.appendText("\nStarting thread for client " 
+                                                  + clientNo + " at " 
+                                                  + new Date() + '\n');         // Display the client number
+
+                        InetAddress inetAddress = socket.getInetAddress();      // Find the client's host name, and IP address
+                        outputTextArea.appendText("Client " + clientNo 
+                                                  + "'s host name is " 
+                                                  + inetAddress.getHostName() 
+                                                  + "\n");
+                        outputTextArea.appendText("Client " + clientNo 
+                                                  + "'s IP Address is " 
+                                                  + inetAddress.getHostAddress() 
+                                                  + "\n");
                     });
 
-                                                                                // Create and start a new thread for the connection
-                    new Thread(new HandleAClient(socket)).start();
-
+                    new Thread(new HandleAClient(socket)).start();              // Create and start a new thread for the connection
+                    
                 }
-            } catch (IOException ex) {
+            } catch (IOException ex) {                                          // Catch IO Exceptions
                 System.err.println(ex);
             }
         }).start();
@@ -116,7 +120,7 @@ public class Server extends Application {
 
     class HandleAClient implements Runnable {
 
-        private Socket socket;                                                  // A connected socket
+        private final Socket socket;                                            // A connected socket
 
         public HandleAClient(Socket socket) {                                   // Construct a thread
             this.socket = socket;
@@ -127,49 +131,62 @@ public class Server extends Application {
 
             try {
 
-                                                                                // Create object type input and output streams                
-                ObjectInputStream objFromClient;
+                ObjectInputStream objFromClient;                                // Create object type input and output streams
                 ObjectOutputStream objToClient;
 
-                                                                                // Continuously serve the client
-                while (true) {
+                while (true) {                                                  // Continuously serve the client
 
-                    objFromClient = new ObjectInputStream(socket.getInputStream());
-                    objToClient = new ObjectOutputStream(socket.getOutputStream());
+                    objFromClient = new ObjectInputStream(socket.getInputStream());// Create input stream
+                    objToClient = new ObjectOutputStream(socket.getOutputStream());// Create output stream
 
                     Object object = null;
 
                     try {
-                        object = objFromClient.readObject();
+                        object = objFromClient.readObject();                    // Receive object from client
                     } catch (ClassNotFoundException ex) {
                         Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
                     }
 
-                    String[] fromClientObj = object.toString().split(":");
+                    String[] fromClientObj = object.toString().split(":");      // Split client object into array
 
-                    Loan loan = new Loan(
+                    Loan loan = new Loan(                                       // Create new loan object
                             Double.parseDouble(fromClientObj[0]),
                             Integer.parseInt(fromClientObj[1]),
                             Double.parseDouble(fromClientObj[2])
                     );
 
-                    Platform.runLater(() -> {
-                        outputTextArea.appendText(String.format("\nAnnual Interest Rate: %.2f\n", loan.getAnnualInterestRate()));
-                        outputTextArea.appendText(String.format("Number of Years: %d\n", loan.getNumberOfYears()));
-                        outputTextArea.appendText(String.format("Loan Amount: %.2f\n", loan.getLoanAmount()));
-                        outputTextArea.appendText(String.format("monthlyPayment: %.2f\n", loan.getMonthlyPayment())); 	// Get the monthly payment from the object, format it to look good and display it in the textbox
-                        outputTextArea.appendText(String.format("totalPayment: %.2f\n", loan.getTotalPayment()));
+                    Platform.runLater(() -> {                                   // create a new thread
+                        outputTextArea.appendText(
+                                String.format("\nAnnual Interest Rate: %.2f\n",
+                                              loan.getAnnualInterestRate())
+                        );                                                      // Get and format annual interest rate from object
+                        outputTextArea.appendText(
+                                String.format("Number of Years: %d\n",
+                                              loan.getNumberOfYears())
+                        );                                                      // Get and format monthly payment from object
+                        outputTextArea.appendText(
+                                String.format("Loan Amount: %.2f\n",
+                                              loan.getLoanAmount())
+                        );                                                      // Get and format loan amount from object
+                        outputTextArea.appendText(
+                                String.format("monthlyPayment: %.2f\n",
+                                              loan.getMonthlyPayment())
+                        );                                                      // Get and format monthly paymnet from object
+                        outputTextArea.appendText(
+                                String.format("totalPayment: %.2f\n", loan.getTotalPayment())
+                        );                                                      // Get and format total payment from object
 
                     });
 
-                    String toClientObj = loan.getMonthlyPayment() + ":" + loan.getTotalPayment();
+                    String toClientObj = loan.getMonthlyPayment() + ":" 
+                                         + loan.getTotalPayment();              // Construct information string to send to client
 
-                    objToClient.writeObject(toClientObj);
-                    objToClient.flush();
+                    objToClient.writeObject(toClientObj);                       // Transmit information string
+                    objToClient.flush();                                        // Flush buffers
 
                 }
 
-            } catch (IOException ex) {
+            } catch (IOException ex) {                                          // Catch IO Exceptions
                 outputTextArea.appendText(ex.toString() + '\n');
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -186,7 +203,7 @@ public class Server extends Application {
 
     public static void main(String[] args) {
 
-        launch(args);
+        launch(args);                                                           // Launch program
 
     }
 
